@@ -302,3 +302,240 @@ def interpolatedSlashy = /a ${color} car/
 
 assert interpolatedSlashy == 'a blue car'
 ```
+
+## 4.7.字符串一览表
+![string_summary](https://raw.githubusercontent.com/shijie93/groovy_lang_spec/master/syntax/string_summary.png)
+
+## 4.8.字符
+与Java不同，Groovy没有明确的字符文字。但是，您可以通过三种不同的方式来明确如何使Groovy字符串成为实际字符：
+```groovy
+char c1 = 'A' 
+assert c1 instanceof Character
+
+def c2 = 'B' as char 
+assert c2 instanceof Character
+
+def c3 = (char)'C' 
+assert c3 instanceof Character
+```
+# 5.数字
+Groovy支持不同类型的整数文字和小数文字，并支持Java常用的Number类型。
+
+## 5.1.整数文字
+整数文字类型和java相同：
+
+ - byte
+ - char
+ - short
+ - int
+ - long
+ - java.lang.BigInteger
+
+```groovy
+// primitive types
+byte  b = 1
+char  c = 2
+short s = 3
+int   i = 4
+long  l = 5
+
+// 无限精度
+BigInteger bi =  6
+```
+如果您使用 `def` 关键字进行可选输入，则整数的类型将有所不同：**它将适应可容纳该数字的类型的容量**。
+```groovy
+def a = 1
+assert a instanceof Integer
+
+// Integer.MAX_VALUE
+def b = 2147483647
+assert b instanceof Integer
+
+// Integer.MAX_VALUE + 1
+def c = 2147483648
+assert c instanceof Long
+
+// Long.MAX_VALUE
+def d = 9223372036854775807
+assert d instanceof Long
+
+// Long.MAX_VALUE + 1
+def e = 9223372036854775808
+assert e instanceof BigInteger
+```
+
+### 5.1.1.非10进制表示
+数字也可以用二进制，八进制，十六进制和十进制表示。
+```groovy
+int xInt = 0x77
+assert xInt == 119
+```
+## 5.2.小数文字
+小数文字与java相同：
+
+ - float
+ - double
+ - java.lang.BigDecimal `Groovy 默认的小数类型`，其他需要显示
+
+```groovy
+// primitive types
+float  f = 1.234
+double d = 2.345
+
+// infinite precision
+BigDecimal bd =  3.456
+
+def a = 1.1
+
+println(a.class)
+// class java.math.BigDecimal
+```
+可以使用指数 `e` 或者 `E`，后跟随者指数:
+```groovy
+assert 1e3  ==  1_000.0
+assert 2E4  == 20_000.0
+assert 3e+1 ==     30.0
+assert 4E-2 ==      0.04
+assert 5e-1 ==      0.5
+```
+## 5.3.文字下划线
+在编写长文字数字时，靠眼睛难以弄清楚某些数字是如何组合在一起的，例如数千个组合等等。通过允许您在数字文字中放置下划线，可以更容易地发现这些组：
+```groovy
+long creditCardNumber = 1234_5678_9012_3456L
+long socialSecurityNumbers = 999_99_9999L
+double monetaryAmount = 12_345_132.12
+long hexBytes = 0xFF_EC_DE_5E
+long hexWords = 0xFFEC_DE5E
+long maxLong = 0x7fff_ffff_ffff_ffffL
+long alsoMaxLong = 9_223_372_036_854_775_807L
+long bytes = 0b11010010_01101001_10010100_10010010
+```
+
+## 5.4.数字类型后缀
+我们可以通过给一个后缀强制一个数字（包括二进制，八进制和十六进制）具有特定类型，可以是大写或小写。
+
+![number_type_suffixes.png](https://raw.githubusercontent.com/shijie93/groovy_lang_spec/master/syntax/number_type_suffixes.png)
+
+```groovy
+assert 42I == new Integer('42')
+assert 42i == new Integer('42') // lowercase i more readable
+assert 123L == new Long("123") // uppercase L more readable
+assert 2147483648 == new Long('2147483648') // Long type used, value too large for an Integer
+assert 456G == new BigInteger('456')
+assert 456g == new BigInteger('456')
+assert 123.45 == new BigDecimal('123.45') // default BigDecimal type used
+assert 1.200065D == new Double('1.200065')
+assert 1.234F == new Float('1.234')
+assert 1.23E23D == new Double('1.23E23')
+assert 0b1111L.class == Long // binary
+assert 0xFFi.class == Integer // hexadecimal
+assert 034G.class == BigInteger // octal
+```
+# 6. Booleans
+布尔值是一种特殊的数据类型，用于表示真值： `true` 和 `false` 。此数据类型常用于跟踪真/假条件的简单标志。
+```groovy
+def myBooleanVariable = true
+boolean untypedBooleanVar = false
+booleanField = true
+```
+
+# 7.列表
+Groovy 使用逗号分隔的值列表，用方括号括起来表示列表。Groovy列表是普通的JDK `java.util.List` ，因为Groovy没有定义它自己的集合类。定义列表文字时使用的具体列表实现默认为 `java.util.ArrayList` ，除非您决定另外指定。
+
+```groovy
+def numbers = [1, 2, 3]         
+
+assert numbers instanceof List  
+assert numbers.size() == 3      
+```
+上述的列表为相同类型元素的列表，也可以创建不同元素类型的列表:
+```groovy
+def heterogeneous = [1, "a", true]
+```
+默认情况下，列表文字实际上是 `java.util.ArrayList` 的实例，但是可以为我们的列表使用不同的支持类型，这要归功于使用 `as` 运算符的类型强制，或者对变量显式的类型声明：
+```groovy
+def arrayList = [1, 2, 3]
+assert arrayList instanceof java.util.ArrayList
+
+def linkedList = [2, 3, 4] as LinkedList    
+assert linkedList instanceof java.util.LinkedList
+
+LinkedList otherLinked = [3, 4, 5]          
+assert otherLinked instanceof java.util.LinkedList
+```
+列表操作
+```groovy
+def letters = ['a', 'b', 'c', 'd']
+
+assert letters[0] == 'a'     
+assert letters[1] == 'b'
+
+assert letters[-1] == 'd'    
+assert letters[-2] == 'c'
+
+letters[2] = 'C'             
+assert letters[2] == 'C'
+
+letters << 'e'               
+assert letters[ 4] == 'e'
+assert letters[-1] == 'e'
+
+assert letters[1, 3] == ['b', 'd']         
+assert letters[2..4] == ['C', 'd', 'e']    
+```
+多维列表：
+```groovy
+def multi = [[0, 1], [2, 3]]     
+assert multi[1][0] == 2          
+```
+# 8.数组
+Groovy重用了列表符号作为数组声明，但为了制作这样的文字数组，您需要通过强制或类型声明来明确定义数组的类型。
+```groovy
+String[] arrStr = ['Ananas', 'Banana', 'Kiwi']  
+
+assert arrStr instanceof String[]    
+
+def numArr = [1, 2, 3] as int[]      
+
+assert numArr instanceof int[]       
+assert numArr.size() == 3
+```
+还可以创建多维数组：
+```groovy
+def matrix3 = new Integer[3][3]         
+assert matrix3.size() == 3
+
+Integer[][] matrix2                     
+matrix2 = [[1, 2], [3, 4]]
+assert matrix2 instanceof Integer[][]
+```
+> 对数组元素的访问与列表相同
+
+# 9.Maps
+含义与其他语言的字典相同
+```groovy
+def colors = [red: '#FF0000', green: '#00FF00', blue: '#0000FF']   
+
+assert colors['red'] == '#FF0000'    
+assert colors.green  == '#00FF00'    
+
+colors['pink'] = '#FF00FF'           
+colors.yellow  = '#FFFF00'           
+
+assert colors.pink == '#FF00FF'
+assert colors['yellow'] == '#FFFF00'
+
+assert colors instanceof java.util.LinkedHashMap
+```
+> Groovy创建的映射实际上是 `java.util.LinkedHashMap` 的实例。
+
+访问不存在的 key 会返回 `null`.
+
+当想要使用变量代替key时，需要用括号包围：
+```groovy
+def key = 'name'
+person = [(key): 'Guillaume']
+
+assert person.containsKey('name')
+assert !person.containsKey('key')    
+```
